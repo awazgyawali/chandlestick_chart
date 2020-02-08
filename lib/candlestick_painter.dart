@@ -1,17 +1,45 @@
 part of candlestick_chart;
 
 class CandleStickPainter extends CustomPainter {
-  List<CandleStickChartData> _datas = [];
-  CandleStickPainter(this._datas);
+  List<CandleStickChartData> datas = [];
+  double candleWidth;
+  int upperBound, lowerBound;
 
-  double candleWidth = 5;
+  Size _size;
+  CandleStickPainter({
+    this.datas,
+    this.upperBound,
+    this.lowerBound,
+    this.candleWidth,
+  });
+
+  double getTopForValue(double value) {
+    return (1 - ((value - lowerBound) / range)) * _size.height;
+  }
+
+  int get range => upperBound - lowerBound;
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (var i = 0; i < _datas.length; i++) {
-      CandleStickChartData data = _datas[i];
+    _size = size;
+    _drawVerticleGrid(canvas);
+    _drawSticks(canvas);
+  }
+
+  void _drawVerticleGrid(Canvas canvas) {
+    //TODO: Draw vertical Grid
+  }
+
+  void _drawSticks(Canvas canvas) {
+    for (var i = 0; i < datas.length; i++) {
+      CandleStickChartData data = datas[i];
       canvas.drawRect(
-        Rect.fromLTWH(i * candleWidth, 0, candleWidth, data.high - data.low),
+        Rect.fromLTWH(
+          i * candleWidth,
+          getTopForValue(data.open),
+          candleWidth,
+          (data.openCloseDifference / range) * _size.height,
+        ),
         redPaint,
       );
     }
@@ -25,6 +53,6 @@ class CandleStickPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CandleStickPainter oldDelegate) {
-    return _datas != oldDelegate._datas;
+    return datas != oldDelegate.datas;
   }
 }
